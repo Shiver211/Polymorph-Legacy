@@ -11,8 +11,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.gui.inventory.GuiCrafting;
-import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -27,18 +25,23 @@ public final class ClientRecipes {
     private static CraftingOverlay overlay;
     private static int nextViewId;
     private static boolean pendingOpenView;
+    private static ResourceLocation pendingSelection;
 
     @SubscribeEvent
     public void initGui(GuiScreenEvent.InitGuiEvent.Post event) {
-        if (!(event.getGui() instanceof GuiInventory) && !(event.getGui() instanceof GuiCrafting)) {
+        if (!(event.getGui() instanceof GuiContainer)) {
             return;
         }
         GuiContainer gui = (GuiContainer) event.getGui();
-        if (CraftingContext.of(gui.inventorySlots) == null) {
+        CraftingContext context = CraftingContext.of(gui.inventorySlots);
+        if (context == null) {
             return;
         }
+        if (overlay == null || overlay.gui.inventorySlots != gui.inventorySlots) {
+            pendingSelection = null;
+        }
         // 背包的 windowId 总是 0，额外的会话号用于丢弃上次打开界面的延迟消息。
-        overlay = new CraftingOverlay(gui, ++nextViewId);
+        overlay = new CraftingOverlay(gui, ++nextViewId, context.getOutputSlot());
         pendingOpenView = true;
     }
 
@@ -78,10 +81,15 @@ public final class ClientRecipes {
         if (mc.player == null) {
             overlay = null;
             pendingOpenView = false;
+            pendingSelection = null;
         } else if (pendingOpenView && isCurrent(mc.currentScreen)) {
             // 工作台在 InitGuiEvent.Post 之后才赋予 windowId，等开窗流程完成后再请求配方。
             PolymorphNetwork.CHANNEL.sendToServer(new OpenViewPacket(overlay.gui.inventorySlots.windowId, overlay.viewId));
             pendingOpenView = false;
+            if (pendingSelection != null) {
+                select(pendingSelection);
+                pendingSelection = null;
+            }
         }
     }
 
@@ -95,12 +103,21 @@ public final class ClientRecipes {
         Minecraft mc = Minecraft.getMinecraft();
         if (overlay != null && mc.player != null && mc.player.openContainer == overlay.gui.inventorySlots
                 && overlay.gui.inventorySlots.windowId == packet.windowId && overlay.viewId == packet.viewId) {
+            CraftingContext context = CraftingContext.of(overlay.gui.inventorySlots);
+            if (context != null) {
+                context.receive(packet.choices, packet.selected);
+            }
             overlay.update(packet.choices, packet.selected);
         }
     }
 
     public static void select(ResourceLocation recipe) {
         if (overlay != null) {
+            if (pendingOpenView) {
+                // JEI 可能在界面重新初始化的同一 tick 内填料；先建立会话，再发送选择。
+                pendingSelection = recipe;
+                return;
+            }
             PolymorphNetwork.CHANNEL.sendToServer(new SelectRecipePacket(overlay.gui.inventorySlots.windowId,
                     overlay.viewId, recipe));
         }

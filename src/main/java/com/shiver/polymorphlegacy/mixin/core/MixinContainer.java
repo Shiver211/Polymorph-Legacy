@@ -1,5 +1,7 @@
 package com.shiver.polymorphlegacy.mixin.core;
 
+import com.shiver.polymorphlegacy.crafting.CraftingContext;
+import com.shiver.polymorphlegacy.crafting.CraftingContextProvider;
 import com.shiver.polymorphlegacy.crafting.CraftingState;
 import com.shiver.polymorphlegacy.crafting.CraftingStateHolder;
 import com.shiver.polymorphlegacy.crafting.CraftingService;
@@ -24,6 +26,16 @@ public abstract class MixinContainer implements CraftingStateHolder {
     @Override
     public CraftingState polymorph$getCraftingState() {
         return polymorph$state;
+    }
+
+    @Inject(method = "detectAndSendChanges", at = @At("HEAD"))
+    private void polymorph$detectChanges(CallbackInfo ci) {
+        if ((Object) this instanceof CraftingContextProvider) {
+            CraftingContext context = ((CraftingContextProvider) this).polymorph$getCraftingContext();
+            if (context != null) {
+                context.detectChanges();
+            }
+        }
     }
 
     @Inject(method = "slotChangedCraftingGrid", at = @At("HEAD"), cancellable = true)

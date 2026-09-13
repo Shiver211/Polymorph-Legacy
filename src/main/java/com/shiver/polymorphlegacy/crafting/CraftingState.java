@@ -24,6 +24,11 @@ public final class CraftingState {
         return choices;
     }
 
+    @Nullable
+    public IRecipe getActiveRecipe() {
+        return activeRecipe;
+    }
+
     public void resolved(List<RecipeChoice> choices, @Nullable IRecipe recipe) {
         this.choices = Collections.unmodifiableList(choices);
         activeRecipe = recipe;

@@ -25,9 +25,15 @@ public final class CraftingService {
     public static IRecipe resolve(Container container, InventoryCrafting matrix, World world,
             EntityPlayer player) {
         CraftingContext context = CraftingContext.of(container);
-        if (context == null || context.matrix != matrix || world.isRemote) {
+        if (context == null || !context.ownsMatrix(matrix) || world.isRemote) {
             return CraftingManager.findMatchingRecipe(matrix, world);
         }
+        return resolve(context, matrix, world, player);
+    }
+
+    @Nullable
+    public static IRecipe resolve(CraftingContext context, InventoryCrafting matrix, World world,
+            EntityPlayer player) {
         List<IRecipe> recipes = new ArrayList<>();
         List<ResourceLocation> ids = new ArrayList<>();
         List<RecipeChoice> choices = new ArrayList<>();
@@ -70,7 +76,7 @@ public final class CraftingService {
             return false;
         }
         // 材料可能已被移动；先基于服务端当前输入重新计算，再接受选择。
-        resolve(context.container, context.matrix, player.world, player);
+        resolve(context, context.getMatrix(), player.world, player);
         List<ResourceLocation> ids = new ArrayList<>();
         for (RecipeChoice choice : context.state().getChoices()) {
             ids.add(choice.getId());
@@ -91,7 +97,7 @@ public final class CraftingService {
     }
 
     public static void refresh(CraftingContext context) {
-        context.container.onCraftMatrixChanged(context.matrix);
+        context.refresh();
         context.container.detectAndSendChanges();
     }
 
@@ -111,7 +117,7 @@ public final class CraftingService {
     @Nullable
     public static CraftingContext beginCraft(EntityPlayer player, InventoryCrafting matrix) {
         CraftingContext context = CraftingContext.of(player.openContainer);
-        if (player.world.isRemote || context == null || context.matrix != matrix) {
+        if (player.world.isRemote || context == null || !context.ownsMatrix(matrix)) {
             return null;
         }
         context.state().beginCraft();

@@ -32,6 +32,7 @@ public final class CraftingOverlay {
     private static final ResourceLocation SELECTED_HOVER = texture("current_output_highlighted");
     public final GuiContainer gui;
     public final int viewId;
+    private final Slot outputSlot;
     private List<RecipeChoice> choices = Collections.emptyList();
     private ResourceLocation selected;
     private boolean expanded;
@@ -42,9 +43,10 @@ public final class CraftingOverlay {
     private Rectangle button = new Rectangle();
     private Rectangle palette = new Rectangle();
 
-    public CraftingOverlay(GuiContainer gui, int viewId) {
+    public CraftingOverlay(GuiContainer gui, int viewId, Slot outputSlot) {
         this.gui = gui;
         this.viewId = viewId;
+        this.outputSlot = outputSlot;
     }
 
     private static ResourceLocation texture(String name) {
@@ -61,8 +63,7 @@ public final class CraftingOverlay {
     }
 
     private void layout() {
-        Slot slot = gui.inventorySlots.getSlot(0);
-        button = new Rectangle(gui.getGuiLeft() + slot.xPos, gui.getGuiTop() + slot.yPos - 22, 16, 16);
+        button = new Rectangle(gui.getGuiLeft() + outputSlot.xPos, gui.getGuiTop() + outputSlot.yPos - 22, 16, 16);
         pageSize = Math.max(1, Math.min(15, (gui.width - 8) / 25));
         pageCount = Math.max(1, (choices.size() + pageSize - 1) / pageSize);
         page = Math.min(page, pageCount - 1);
