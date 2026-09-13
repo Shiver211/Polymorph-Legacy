@@ -1,6 +1,11 @@
 apply from: 'gradle/scripts/helpers.gradle'
 
 repositories {
+    maven {
+        name 'JEI Maven'
+        url 'https://maven.blamejared.com'
+        content { includeGroup 'mezz.jei' }
+    }
     // Other repositories described by default:
     // CleanroomMC: https://maven.cleanroommc.com
     exclusiveContent {
@@ -34,6 +39,14 @@ configurations {
 }
 
 dependencies {
+    compileOnly(rfg.deobf("mezz.jei:jei_1.12.2:${propertyString('jei_version')}")) {
+        transitive = false
+    }
+    if (propertyString('recipe_viewer') == 'jei') {
+        runtimeOnly(rfg.deobf("mezz.jei:jei_1.12.2:${propertyString('jei_version')}")) { transitive = false }
+    } else if (propertyString('recipe_viewer') == 'hei') {
+        runtimeOnly(rfg.deobf("mezz:jei:${propertyString('hei_version')}")) { transitive = false }
+    }
     // Include StripLatestForgeRequirements by default for the dev env, saves everyone a hassle
     runtimeOnly 'com.cleanroommc:strip-latest-forge-requirements:1.0'
     // Include OSXNarratorBlocker by default for the dev env, for M1+ Macs
