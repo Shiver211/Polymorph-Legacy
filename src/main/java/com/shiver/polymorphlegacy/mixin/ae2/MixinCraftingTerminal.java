@@ -19,8 +19,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = {ContainerCraftingTerm.class, ContainerWirelessCraftingTerminal.class}, remap = false)
 public abstract class MixinCraftingTerminal implements Ae2CraftingContainer {
-    @Shadow private IRecipe currentRecipe;
-    @Shadow @Final private SlotCraftingTerm outputSlot;
+    @Shadow(remap = false) private IRecipe currentRecipe;
+    @Shadow(remap = false) @Final private SlotCraftingTerm outputSlot;
     @Unique private Ae2CraftingContext polymorph$context;
 
     @Override

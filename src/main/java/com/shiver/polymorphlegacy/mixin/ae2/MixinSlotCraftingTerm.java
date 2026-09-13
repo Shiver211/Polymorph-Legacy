@@ -27,7 +27,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = SlotCraftingTerm.class, remap = false)
 public abstract class MixinSlotCraftingTerm {
-    @Shadow @Final private IContainerCraftingPacket container;
+    @Shadow(remap = false) @Final private IContainerCraftingPacket container;
     @Unique private Ae2CraftingContext polymorph$craftingContext;
 
     @Unique
