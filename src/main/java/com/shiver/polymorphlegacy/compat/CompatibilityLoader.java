@@ -10,11 +10,14 @@ public final class CompatibilityLoader implements ILateMixinLoader {
     @Override
     public List<String> getMixinConfigs() {
         return Arrays.asList("mixins.polymorph_legacy.jei.json", "mixins.polymorph_legacy.ae2.json",
-                "mixins.polymorph_legacy.ae2jei.json");
+                "mixins.polymorph_legacy.ae2jei.json", "mixins.polymorph_legacy.tconstruct.json");
     }
 
     @Override
     public boolean shouldMixinConfigQueue(String config) {
+        if ("mixins.polymorph_legacy.tconstruct.json".equals(config)) {
+            return Loader.isModLoaded("tconstruct");
+        }
         if ("mixins.polymorph_legacy.ae2.json".equals(config)) {
             return Loader.isModLoaded("appliedenergistics2");
         }

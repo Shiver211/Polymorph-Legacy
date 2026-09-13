@@ -63,7 +63,11 @@ public final class CraftingOverlay {
     }
 
     private void layout() {
-        button = new Rectangle(gui.getGuiLeft() + outputSlot.xPos, gui.getGuiTop() + outputSlot.yPos - 22, 16, 16);
+        int left = gui instanceof CraftingGuiOrigin
+                ? ((CraftingGuiOrigin) gui).polymorph$getCraftingLeft() : gui.getGuiLeft();
+        int top = gui instanceof CraftingGuiOrigin
+                ? ((CraftingGuiOrigin) gui).polymorph$getCraftingTop() : gui.getGuiTop();
+        button = new Rectangle(left + outputSlot.xPos, top + outputSlot.yPos - 22, 16, 16);
         pageSize = Math.max(1, Math.min(15, (gui.width - 8) / 25));
         pageCount = Math.max(1, (choices.size() + pageSize - 1) / pageSize);
         page = Math.min(page, pageCount - 1);

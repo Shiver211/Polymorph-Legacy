@@ -29,7 +29,9 @@ public final class ClientRecipes {
 
     @SubscribeEvent
     public void initGui(GuiScreenEvent.InitGuiEvent.Post event) {
-        if (!(event.getGui() instanceof GuiContainer)) {
+        // Mantle 的标签等子界面也会触发初始化，只给当前主界面创建选择器。
+        if (event.getGui() != Minecraft.getMinecraft().currentScreen
+                || !(event.getGui() instanceof GuiContainer)) {
             return;
         }
         GuiContainer gui = (GuiContainer) event.getGui();
