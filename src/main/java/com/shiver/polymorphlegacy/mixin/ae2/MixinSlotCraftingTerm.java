@@ -44,7 +44,7 @@ public abstract class MixinSlotCraftingTerm {
         Ae2CraftingContext context = polymorph$getContext();
         if (context != null && !player.world.isRemote && player.openContainer == context.container) {
             context.detectChanges();
-            context.state().beginCraft();
+            CraftingService.state(context).beginCraft();
             polymorph$craftingContext = context;
         }
     }

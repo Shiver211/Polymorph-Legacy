@@ -1,10 +1,10 @@
 package com.shiver.polymorphlegacy.compat.tconstruct;
 
-import com.shiver.polymorphlegacy.crafting.CraftingContext;
+import com.shiver.polymorphlegacy.api.CraftingContext;
+import com.shiver.polymorphlegacy.api.RecipeChoice;
 import com.shiver.polymorphlegacy.crafting.CraftingService;
 import com.shiver.polymorphlegacy.crafting.CraftingState;
 import com.shiver.polymorphlegacy.crafting.CraftingStateHolder;
-import com.shiver.polymorphlegacy.crafting.RecipeChoice;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -48,21 +48,23 @@ public final class TinkerCraftingContext extends CraftingContext {
 
     private void inheritSelection(CraftingState source) {
         IRecipe recipe = source.getActiveRecipe();
-        state().getSelection().clear();
+        CraftingState state = CraftingService.state(this);
+        state.getSelection().clear();
         if (recipe != null) {
             ResourceLocation id = recipe.getRegistryName();
-            state().getSelection().select(id, Collections.singletonList(id));
+            state.getSelection().select(id, Collections.singletonList(id));
         }
-        state().resolved(source.getChoices(), recipe);
+        state.resolved(source.getChoices(), recipe);
     }
 
     public void syncViewers(List<EntityPlayerMP> viewers) {
+        CraftingState state = CraftingService.state(this);
         for (EntityPlayerMP viewer : viewers) {
             TinkerCraftingContext context = (TinkerCraftingContext) CraftingContext.of(viewer.openContainer);
             if (context != this) {
-                context.inheritSelection(state());
+                context.inheritSelection(state);
                 // 返还物由匠魂的 lastRecipe 决定，必须和其他窗口显示的结果一起更新。
-                context.station.updateLastRecipeFromServer(state().getActiveRecipe());
+                context.station.updateLastRecipeFromServer(state.getActiveRecipe());
             }
             CraftingService.sync(viewer.openContainer, viewer);
         }

@@ -1,6 +1,6 @@
 package com.shiver.polymorphlegacy.network;
 
-import com.shiver.polymorphlegacy.crafting.RecipeChoice;
+import com.shiver.polymorphlegacy.api.RecipeChoice;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;

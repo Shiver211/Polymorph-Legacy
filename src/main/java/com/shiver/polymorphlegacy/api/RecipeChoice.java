@@ -1,4 +1,4 @@
-package com.shiver.polymorphlegacy.crafting;
+package com.shiver.polymorphlegacy.api;
 
 import java.util.Objects;
 import net.minecraft.item.ItemStack;

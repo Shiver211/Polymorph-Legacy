@@ -1,6 +1,6 @@
 package com.shiver.polymorphlegacy.compat.ae2;
 
-import com.shiver.polymorphlegacy.crafting.CraftingContextProvider;
+import com.shiver.polymorphlegacy.api.CraftingContextProvider;
 import javax.annotation.Nullable;
 import net.minecraft.item.crafting.IRecipe;
 

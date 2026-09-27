@@ -1,5 +1,7 @@
 package com.shiver.polymorphlegacy.crafting;
 
+import com.shiver.polymorphlegacy.api.CraftingContext;
+import com.shiver.polymorphlegacy.api.RecipeChoice;
 import com.shiver.polymorphlegacy.network.PolymorphNetwork;
 import com.shiver.polymorphlegacy.network.RecipesPacket;
 import java.util.ArrayList;
@@ -49,7 +51,7 @@ public final class CraftingService {
             ids.add(recipe.getRegistryName());
             choices.add(new RecipeChoice(recipe.getRegistryName(), output));
         }
-        CraftingState state = context.state();
+        CraftingState state = state(context);
         ResourceLocation selected = state.getSelection().resolve(ids);
         IRecipe recipe = selected == null ? null : recipes.get(ids.indexOf(selected));
         state.resolved(choices, recipe);
@@ -66,22 +68,22 @@ public final class CraftingService {
         if (context == null || viewId == 0) {
             return;
         }
-        context.state().openView(viewId);
+        state(context).openView(viewId);
         refresh(context);
     }
 
     public static boolean select(EntityPlayerMP player, int windowId, int viewId, ResourceLocation id) {
         CraftingContext context = currentContext(player, windowId);
-        if (context == null || viewId == 0 || context.state().getViewId() != viewId) {
+        if (context == null || viewId == 0 || state(context).getViewId() != viewId) {
             return false;
         }
         // 材料可能已被移动；先基于服务端当前输入重新计算，再接受选择。
         resolve(context, context.getMatrix(), player.world, player);
         List<ResourceLocation> ids = new ArrayList<>();
-        for (RecipeChoice choice : context.state().getChoices()) {
+        for (RecipeChoice choice : state(context).getChoices()) {
             ids.add(choice.getId());
         }
-        if (!context.state().getSelection().select(id, ids)) {
+        if (!state(context).getSelection().select(id, ids)) {
             refresh(context);
             return false;
         }
@@ -101,12 +103,16 @@ public final class CraftingService {
         context.container.detectAndSendChanges();
     }
 
+    public static CraftingState state(CraftingContext context) {
+        return ((CraftingStateHolder) context.container).polymorph$getCraftingState();
+    }
+
     public static void sync(Container container, EntityPlayer player) {
         CraftingContext context = CraftingContext.of(container);
         if (context == null || !(player instanceof EntityPlayerMP) || player.openContainer != container) {
             return;
         }
-        CraftingState state = context.state();
+        CraftingState state = state(context);
         if (state.getViewId() != 0 && state.needsSync()) {
             PolymorphNetwork.CHANNEL.sendTo(new RecipesPacket(container.windowId, state.getViewId(),
                     state.getChoices(), state.getSelection().getSelected()), (EntityPlayerMP) player);
@@ -120,21 +126,21 @@ public final class CraftingService {
         if (player.world.isRemote || context == null || !context.ownsMatrix(matrix)) {
             return null;
         }
-        context.state().beginCraft();
+        state(context).beginCraft();
         return context;
     }
 
     public static NonNullList<ItemStack> remainingItems(@Nullable CraftingContext context,
             InventoryCrafting matrix, World world) {
-        IRecipe recipe = context == null ? null : context.state().getCraftingRecipe();
+        IRecipe recipe = context == null ? null : state(context).getCraftingRecipe();
         return recipe == null ? CraftingManager.getRemainingItems(matrix, world)
                 : recipe.getRemainingItems(matrix);
     }
 
     public static void finishCraft(@Nullable CraftingContext context) {
         if (context != null) {
-            context.state().endCraft();
-            if (!context.state().getSelection().isCrafting()) {
+            state(context).endCraft();
+            if (!state(context).getSelection().isCrafting()) {
                 refresh(context);
             }
         }

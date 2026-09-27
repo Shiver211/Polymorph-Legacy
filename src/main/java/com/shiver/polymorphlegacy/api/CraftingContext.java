@@ -1,4 +1,4 @@
-package com.shiver.polymorphlegacy.crafting;
+package com.shiver.polymorphlegacy.api;
 
 import java.util.List;
 import javax.annotation.Nullable;
@@ -9,6 +9,7 @@ import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.util.ResourceLocation;
 
+/** 在服务端和客户端描述容器的合成矩阵。 */
 public abstract class CraftingContext {
     public final Container container;
 
@@ -16,6 +17,7 @@ public abstract class CraftingContext {
         this.container = container;
     }
 
+    /** 获取已接入容器的上下文；其他容器返回 null。 */
     @Nullable
     public static CraftingContext of(Container container) {
         if (container instanceof CraftingContextProvider) {
@@ -40,18 +42,17 @@ public abstract class CraftingContext {
         return getMatrix() == matrix;
     }
 
+    /** 玩家切换配方后重新计算产物。 */
     public void refresh() {
         container.onCraftMatrixChanged(getMatrix());
     }
 
+    /** 容器发送槽位变化前调用，可用于更新非标准合成矩阵。 */
     public void detectChanges() {
     }
 
+    /** 客户端收到候选配方和当前选择后调用。 */
     public void receive(List<RecipeChoice> choices, @Nullable ResourceLocation selected) {
-    }
-
-    public CraftingState state() {
-        return ((CraftingStateHolder) container).polymorph$getCraftingState();
     }
 
     private static final class VanillaContext extends CraftingContext {

@@ -1,5 +1,6 @@
 package com.shiver.polymorphlegacy.crafting;
 
+import com.shiver.polymorphlegacy.api.RecipeChoice;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;

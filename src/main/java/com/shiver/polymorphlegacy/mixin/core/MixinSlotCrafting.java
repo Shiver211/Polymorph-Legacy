@@ -1,6 +1,6 @@
 package com.shiver.polymorphlegacy.mixin.core;
 
-import com.shiver.polymorphlegacy.crafting.CraftingContext;
+import com.shiver.polymorphlegacy.api.CraftingContext;
 import com.shiver.polymorphlegacy.crafting.CraftingService;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.InventoryCrafting;

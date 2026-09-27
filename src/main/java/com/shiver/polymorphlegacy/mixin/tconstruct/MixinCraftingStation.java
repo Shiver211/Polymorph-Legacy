@@ -1,7 +1,7 @@
 package com.shiver.polymorphlegacy.mixin.tconstruct;
 
 import com.shiver.polymorphlegacy.compat.tconstruct.TinkerCraftingContext;
-import com.shiver.polymorphlegacy.crafting.CraftingContextProvider;
+import com.shiver.polymorphlegacy.api.CraftingContextProvider;
 import com.shiver.polymorphlegacy.crafting.CraftingService;
 import java.util.List;
 import javax.annotation.Nullable;

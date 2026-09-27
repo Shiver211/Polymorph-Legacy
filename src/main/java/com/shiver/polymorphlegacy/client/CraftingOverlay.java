@@ -1,7 +1,8 @@
 package com.shiver.polymorphlegacy.client;
 
 import com.shiver.polymorphlegacy.Tags;
-import com.shiver.polymorphlegacy.crafting.RecipeChoice;
+import com.shiver.polymorphlegacy.api.RecipeChoice;
+import com.shiver.polymorphlegacy.api.client.CraftingGuiOrigin;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.Collections;

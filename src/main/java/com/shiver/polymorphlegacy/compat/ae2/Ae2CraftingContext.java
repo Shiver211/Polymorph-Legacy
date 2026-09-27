@@ -5,9 +5,10 @@ import appeng.container.ContainerNull;
 import appeng.container.slot.SlotCraftingTerm;
 import appeng.helpers.IContainerCraftingPacket;
 import appeng.util.inv.IAEAppEngInventory;
-import com.shiver.polymorphlegacy.crafting.CraftingContext;
+import com.shiver.polymorphlegacy.api.CraftingContext;
+import com.shiver.polymorphlegacy.api.RecipeChoice;
 import com.shiver.polymorphlegacy.crafting.CraftingService;
-import com.shiver.polymorphlegacy.crafting.RecipeChoice;
+import com.shiver.polymorphlegacy.crafting.CraftingState;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -60,18 +61,19 @@ public final class Ae2CraftingContext extends CraftingContext {
 
     @Override
     public void refresh() {
-        if (!state().getSelection().isCrafting()) {
+        if (!CraftingService.state(this).getSelection().isCrafting()) {
             update(getMatrix());
         }
     }
 
     @Override
     public void detectChanges() {
-        if (terminal.getPlayerInv().player.world.isRemote || state().getSelection().isCrafting()) {
+        CraftingState state = CraftingService.state(this);
+        if (terminal.getPlayerInv().player.world.isRemote || state.getSelection().isCrafting()) {
             return;
         }
         InventoryCrafting matrix = getMatrix();
-        if (lastInputs == null || !Objects.equals(lastSelection, state().getSelection().getSelected())) {
+        if (lastInputs == null || !Objects.equals(lastSelection, state.getSelection().getSelected())) {
             update(matrix);
             return;
         }
@@ -85,9 +87,10 @@ public final class Ae2CraftingContext extends CraftingContext {
 
     private void update(InventoryCrafting matrix) {
         EntityPlayer player = terminal.getPlayerInv().player;
+        CraftingState state = CraftingService.state(this);
         IRecipe recipe;
         if (player.world.isRemote) {
-            recipe = receivedRecipes ? state().getActiveRecipe() : CraftingManager.findMatchingRecipe(matrix, player.world);
+            recipe = receivedRecipes ? state.getActiveRecipe() : CraftingManager.findMatchingRecipe(matrix, player.world);
             if (recipe != null && !recipe.matches(matrix, player.world)) {
                 recipe = null;
             }
@@ -97,7 +100,7 @@ public final class Ae2CraftingContext extends CraftingContext {
             for (int i = 0; i < 9; i++) {
                 lastInputs[i] = matrix.getStackInSlot(i).copy();
             }
-            lastSelection = state().getSelection().getSelected();
+            lastSelection = state.getSelection().getSelected();
         }
         ((Ae2CraftingContainer) terminal).polymorph$setRecipe(recipe);
         outputSlot.putStack(recipe == null ? ItemStack.EMPTY : recipe.getCraftingResult(matrix));
@@ -120,16 +123,18 @@ public final class Ae2CraftingContext extends CraftingContext {
             }
         }
         IRecipe recipe = selected == null ? null : ForgeRegistries.RECIPES.getValue(selected);
-        state().getSelection().clear();
-        state().getSelection().select(selected, ids);
-        state().resolved(choices, recipe);
+        CraftingState state = CraftingService.state(this);
+        state.getSelection().clear();
+        state.getSelection().select(selected, ids);
+        state.resolved(choices, recipe);
         ((Ae2CraftingContainer) terminal).polymorph$setRecipe(recipe);
         outputSlot.putStack(output);
     }
 
     @Nullable
     public IRecipe recipeForCrafting(InventoryCrafting matrix, World world) {
-        IRecipe recipe = state().getSelection().isCrafting() ? state().getCraftingRecipe() : state().getActiveRecipe();
+        CraftingState state = CraftingService.state(this);
+        IRecipe recipe = state.getSelection().isCrafting() ? state.getCraftingRecipe() : state.getActiveRecipe();
         return recipe != null && recipe.matches(matrix, world) ? recipe : null;
     }
 }

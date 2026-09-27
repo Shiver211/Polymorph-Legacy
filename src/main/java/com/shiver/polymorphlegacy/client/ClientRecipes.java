@@ -1,6 +1,6 @@
 package com.shiver.polymorphlegacy.client;
 
-import com.shiver.polymorphlegacy.crafting.CraftingContext;
+import com.shiver.polymorphlegacy.api.CraftingContext;
 import com.shiver.polymorphlegacy.network.OpenViewPacket;
 import com.shiver.polymorphlegacy.network.PolymorphNetwork;
 import com.shiver.polymorphlegacy.network.RecipesPacket;

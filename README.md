@@ -14,4 +14,31 @@ Minecraft 1.12.2 Cleanroom 的合成冲突选择模组。
 
 已支持原版背包、工作台、AE2 有线/无线合成终端和匠魂合成站。
 
+## 其他模组接入
+
+Java API 位于 `com.shiver.polymorphlegacy.api`，客户端入口位于 `api.client`。接入模组需依赖 `polymorph_legacy`，并在容器两端实现 `CraftingContextProvider`。上下文应在每个容器实例中复用；原版背包和工作台已自动接入。
+
+```java
+private CraftingContext polymorphContext;
+
+@Override
+public CraftingContext polymorph$getCraftingContext() {
+    if (polymorphContext == null) {
+        polymorphContext = new CraftingContext(this) {
+            @Override public InventoryCrafting getMatrix() { return craftMatrix; }
+            @Override public Slot getOutputSlot() { return container.getSlot(0); }
+        };
+    }
+    return polymorphContext;
+}
+
+// 在容器原有的结果槽更新逻辑中调用；服务端会枚举候选并保持当前选择。
+IRecipe recipe = PolymorphApi.resolve(this, craftMatrix, player.world, player);
+result.setInventorySlotContents(0,
+        recipe == null ? ItemStack.EMPTY : recipe.getCraftingResult(craftMatrix));
+PolymorphApi.sync(this, player);
+```
+
+这里的容器类实现 `CraftingContextProvider`，代码省略了类声明和字段定义。如果容器直接使用原版 `slotChangedCraftingGrid`，Mixin 已处理配方解析和同步，无需重复调用。自定义结果槽取物时可用 `PolymorphApi.beginCraft(player, craftMatrix)` 创建 `CraftingSession`，通过 `getRemainingItems` 获取所选配方的返还物，并在 `finally` 中调用 `close()`。客户端配方查看器填料后可调用 `PolymorphClientApi.selectRecipe(container, recipeId)`；多面板 GUI 可实现 `CraftingGuiOrigin` 指定按钮坐标基准。
+
 本Mod采用 LGPL-3.0-or-later，按钮素材来自 Illusive Soulworks 的 Polymorph。

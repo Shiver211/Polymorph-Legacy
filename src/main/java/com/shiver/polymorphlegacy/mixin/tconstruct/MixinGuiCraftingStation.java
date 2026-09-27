@@ -1,6 +1,6 @@
 package com.shiver.polymorphlegacy.mixin.tconstruct;
 
-import com.shiver.polymorphlegacy.client.CraftingGuiOrigin;
+import com.shiver.polymorphlegacy.api.client.CraftingGuiOrigin;
 import org.spongepowered.asm.mixin.Mixin;
 import slimeknights.tconstruct.tools.common.client.GuiCraftingStation;
 
