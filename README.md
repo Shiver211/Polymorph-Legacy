@@ -16,7 +16,7 @@ Minecraft 1.12.2 Cleanroom 的合成冲突选择模组。
 
 ## 其他模组接入
 
-Java API 位于 `com.shiver.polymorphlegacy.api`，客户端入口位于 `api.client`。接入模组需依赖 `polymorph_legacy`，并在容器两端实现 `CraftingContextProvider`。上下文应在每个容器实例中复用；原版背包和工作台已自动接入。
+Java API 位于 `com.shiver.polymorphlegacy.api`，客户端入口位于 `api.client`。接入模组需在容器两端实现 `CraftingContextProvider`。上下文应在每个容器实例中复用。
 
 ```java
 private CraftingContext polymorphContext;
